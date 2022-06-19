@@ -22,6 +22,8 @@ export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
 
   async execute(command: GeneratePdfCommand) {
     this.logger.debug(`GeneratePdfHandler execute with GeneratePdfCommand`);
+
+    this.logger.debug(`Creating browser`);
     const browser = await puppeteer.launch({
       headless: true,
       args: DEFAULT_PUPETTEER_MINIMAL_ARGS,
@@ -30,6 +32,7 @@ export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
     const page = await browser.newPage();
     await page.setContent(this.getTemplate(command.html, command.style));
 
+    this.logger.debug(`Generating PDF`);
     const pdfBuffer: Buffer = await page.pdf({
       format: 'A1',
       margin: {
@@ -42,12 +45,16 @@ export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
       scale: 2,
     });
 
+    this.logger.debug(`Closing browser`);
     await page.close();
     await browser.close();
 
+    this.logger.debug(`Publishing event GeneratePdfCompletedEvent`);
     this.eventBus.publish(
       new GeneratePdfCompletedEvent(pdfBuffer, command.fileName),
     );
+
+    this.logger.debug(`Publishing command UploadS3Command`);
     this.commandBus.execute(new UploadS3Command(pdfBuffer, command.fileName));
   }
 
