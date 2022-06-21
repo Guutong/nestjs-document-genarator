@@ -54,8 +54,13 @@ export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
       new GeneratePdfCompletedEvent(pdfBuffer, command.fileName),
     );
 
-    this.logger.debug(`Publishing command UploadS3Command`);
-    this.commandBus.execute(new UploadS3Command(pdfBuffer, command.fileName));
+    if (!command.skipS3) {
+      this.logger.debug(`Publishing command UploadS3Command`);
+      await this.commandBus.execute(
+        new UploadS3Command(pdfBuffer, command.fileName),
+      );
+    }
+    return pdfBuffer;
   }
 
   private getTemplate(html: string, style: string): string {
