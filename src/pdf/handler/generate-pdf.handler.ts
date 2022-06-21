@@ -10,6 +10,7 @@ import { DEFAULT_HTML_TEMPLATE } from '../model/constants';
 import { GeneratePdfCompletedEvent } from '../event/genterate-pdf-completed.event';
 import { UploadS3Command } from '../command/upload-s3.command';
 import { BrowserService } from '../browser.service';
+import { BrowserClusterService } from '../browser-cluster.service';
 
 @CommandHandler(GeneratePdfCommand)
 export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
@@ -17,31 +18,32 @@ export class GeneratePdfHandler implements ICommandHandler<GeneratePdfCommand> {
 
   constructor(
     private browserService: BrowserService,
+    private browserClusterService: BrowserClusterService,
     private commandBus: CommandBus,
     private eventBus: EventBus,
   ) {}
 
   async execute(command: GeneratePdfCommand) {
     try {
-      this.logger.debug(`GeneratePdfHandler execute with GeneratePdfCommand`);
+      const browser = await BrowserClusterService.getInstance();
+      const pdfBuffer = await browser.pdf(
+        this.getTemplate(command.html, command.style),
+      );
 
-      const browser = await BrowserService.getInstance();
-      const page = await browser.getPage();
-      await page.setContent(this.getTemplate(command.html, command.style));
-
-      this.logger.debug(`Generating PDF`);
-      const pdfBuffer: Buffer = await page.pdf({
-        format: 'A1',
-        margin: {
-          top: '.5cm',
-          bottom: '.5cm',
-          right: '1cm',
-          left: '1cm',
-        },
-        printBackground: true,
-        scale: 2,
-      });
-      await browser.closePage(page);
+      // const page = await browser.getPage();
+      // await page.setContent(this.getTemplate(command.html, command.style));
+      // const pdfBuffer: Buffer = await page.pdf({
+      //   format: 'A1',
+      //   margin: {
+      //     top: '.5cm',
+      //     bottom: '.5cm',
+      //     right: '1cm',
+      //     left: '1cm',
+      //   },
+      //   printBackground: true,
+      //   scale: 2,
+      // });
+      // await browser.closePage(page);
 
       this.logger.debug(`Publishing event GeneratePdfCompletedEvent`);
       this.eventBus.publish(

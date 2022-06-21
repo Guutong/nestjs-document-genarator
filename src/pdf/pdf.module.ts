@@ -5,6 +5,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { GeneratePdfHandler } from './handler/generate-pdf.handler';
 import { UploadS3Handler } from './handler/upload-s3.handler';
 import { BrowserService } from './browser.service';
+import { BrowserClusterService } from './browser-cluster.service';
 
 export const CommandHandlers = [GeneratePdfHandler, UploadS3Handler];
 export const EventHandlers = [];
@@ -16,6 +17,10 @@ export const EventHandlers = [];
     {
       provide: BrowserService,
       useValue: BrowserService.getInstance(),
+    },
+    {
+      provide: BrowserClusterService,
+      useValue: BrowserClusterService.getInstance(),
     },
     PdfService,
     ...CommandHandlers,
