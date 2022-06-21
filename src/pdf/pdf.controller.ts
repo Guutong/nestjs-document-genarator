@@ -12,14 +12,15 @@ export class PdfController {
     @Body() request: PdfRequest,
     @Res() response: Response,
   ): Promise<void> {
-    const { html, style, fileName, skipS3 } = request;
+    const { html, style, fileName, skipS3, skipResponse } = request;
     const buffer = await this.pdfService.generatePdf(
       html,
       style,
       fileName,
       skipS3,
     );
-    if (skipS3) {
+
+    if (!skipResponse) {
       const stream = this.pdfService.getReadableStream(buffer);
       response.set({
         'Content-Type': 'application/pdf',

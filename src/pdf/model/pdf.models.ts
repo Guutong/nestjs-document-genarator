@@ -3,4 +3,5 @@ export class PdfRequest {
   style: string;
   fileName: string;
   skipS3: boolean;
+  skipResponse: boolean;
 }
