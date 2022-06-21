@@ -30,7 +30,7 @@ export class BrowserClusterService {
     this.cluster = await Cluster.launch({
       concurrency: Cluster.CONCURRENCY_CONTEXT,
       monitor: true,
-      maxConcurrency: 4,
+      maxConcurrency: 2,
       puppeteerOptions: {
         headless: true,
         args: DEFAULT_PUPETTEER_MINIMAL_ARGS,

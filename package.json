@@ -28,6 +28,7 @@
     "@nestjs/cqrs": "^8.0.5",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/platform-fastify": "^8.4.7",
     "puppeteer": "^14.4.1",
     "puppeteer-cluster": "^0.23.0",
     "reflect-metadata": "^0.1.13",
